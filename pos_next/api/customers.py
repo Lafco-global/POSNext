@@ -67,7 +67,7 @@ def get_customers(search_term="", pos_profile=None, limit=20, modified_since=Non
 		frappe.logger().debug(f"get_customers returned {len(result)} customers")
 		return result
 	except Exception as e:
-		frappe.logger().error(f"Error in get_customers: {str(e)}")
+		frappe.logger().error(f"Error in get_customers: {e!s}")
 		frappe.logger().error(frappe.get_traceback())
 		frappe.throw(_("Error fetching customers: {0}").format(str(e)))
 
@@ -208,7 +208,7 @@ def get_default_loyalty_program_from_settings(company=None, pos_profile=None):
 	"""
 	if pos_profile:
 		pos_settings = frappe.db.get_value(
-			"POS Settings",
+			"POS Next Settings",
 			{"enabled": 1, "pos_profile": pos_profile},
 			"default_loyalty_program",
 		)
@@ -218,7 +218,7 @@ def get_default_loyalty_program_from_settings(company=None, pos_profile=None):
 		return None
 
 	pos_settings = frappe.get_all(
-		"POS Settings",
+		"POS Next Settings",
 		filters={"enabled": 1, "default_loyalty_program": ["is", "set"]},
 		fields=["pos_profile", "default_loyalty_program"],
 		order_by="modified desc",
