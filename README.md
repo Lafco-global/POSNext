@@ -436,6 +436,51 @@ We use automated tools to maintain code quality:
 - **Python**: ruff, pyupgrade
 - **JavaScript**: eslint, prettier
 - **Git**: pre-commit hooks
+- **Secrets**: [gitleaks](https://github.com/gitleaks/gitleaks) (see below)
+
+### Secret scanning
+
+A `gitleaks` pre-commit hook blocks commits that contain secret-shaped strings
+(GitHub tokens, AWS keys, private keys, JWTs, etc.). The same scanner runs in CI
+on every pull request via `.github/workflows/gitleaks.yml`, so bypassing the
+local hook will not bypass the PR check.
+
+**Install** the hook once per clone (same command that activates the other
+pre-commit hooks). You also need the `gitleaks` binary in `$PATH` — the hook
+shells out to it directly so it works without a Go toolchain:
+
+```bash
+# macOS
+brew install gitleaks
+
+# Linux (pin to the version we use in CI)
+VERSION=8.30.1
+curl -fsSL -o /tmp/gitleaks.tar.gz \
+  "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
+tar -xzf /tmp/gitleaks.tar.gz -C /tmp
+install -m 0755 /tmp/gitleaks ~/.local/bin/gitleaks
+
+# Then, once per clone:
+cd apps/pos_next
+pre-commit install
+```
+
+**Run on demand** against the current working tree:
+
+```bash
+gitleaks dir . --config .gitleaks.toml
+```
+
+**Committing a deliberate test fixture** that matches a secret pattern:
+
+1. Add an inline `# gitleaks:allow` comment on the same line as the fixture, or
+   add a narrowly-scoped `[[allowlists]]` entry in `.gitleaks.toml`.
+2. Confirm `gitleaks dir . --config .gitleaks.toml` now passes.
+3. If and only if step 2 passes, commit normally. Use `git commit --no-verify`
+   only if the hook is misbehaving on unrelated files — and open an issue so
+   the allowlist can be tightened.
+
+Never `--no-verify` to ship a real secret. Rotate it instead.
 
 ## 📄 License
 
