@@ -7,8 +7,9 @@
 # To intentionally commit a test fixture that matches a secret pattern:
 #   1. Add a `# gitleaks:allow` comment on the same line, OR
 #   2. Add a narrowly-scoped [[allowlists]] entry here.
-#   3. Then `git commit --no-verify` ONLY if the fixture would also match
-#      during `gitleaks detect` on the full tree.
+#   3. Re-run `gitleaks dir . --config .gitleaks.toml` and confirm it exits 0
+#      before committing normally. See README "Secret scanning" — do NOT
+#      `--no-verify` to ship a real secret (rotate it instead).
 
 [extend]
 useDefault = true
