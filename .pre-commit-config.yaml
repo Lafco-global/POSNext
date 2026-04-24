@@ -4,6 +4,19 @@ fail_fast: false
 
 
 repos:
+  # Secret-scanner (LAF-16). Uses the locally-installed `gitleaks` binary so the
+  # hook works on machines whose Go toolchain predates the version required to
+  # build gitleaks from source. Install with `brew install gitleaks` / Linux
+  # release tarball — see README "Secret scanning".
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: "gitleaks (detect committed secrets)"
+        entry: gitleaks protect --staged --redact --verbose --config .gitleaks.toml
+        language: system
+        pass_filenames: false
+        require_serial: true
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:

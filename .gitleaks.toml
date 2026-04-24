@@ -1,0 +1,37 @@
+# Gitleaks configuration for pos_next.
+#
+# Extends the built-in default ruleset. Committed secrets are blocked locally
+# by the pre-commit hook (see .pre-commit-config.yaml) and in CI by
+# .github/workflows/gitleaks.yml. See README "Secret scanning".
+#
+# To intentionally commit a test fixture that matches a secret pattern:
+#   1. Add a `# gitleaks:allow` comment on the same line, OR
+#   2. Add a narrowly-scoped [[allowlists]] entry here.
+#   3. Then `git commit --no-verify` ONLY if the fixture would also match
+#      during `gitleaks detect` on the full tree.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Package-manager lockfiles and minified bundles (false-positive noise)"
+paths = [
+  '''(^|/)package-lock\.json$''',
+  '''(^|/)yarn\.lock$''',
+  '''(^|/)bun\.lockb?$''',
+  '''(^|/)pnpm-lock\.yaml$''',
+  '''.*\.min\.(js|css|map)$''',
+  '''(^|/)POS/dist/''',
+  '''(^|/)pos_next/public/dist/''',
+]
+
+[[allowlists]]
+description = "BrainWise branding tamper-check constants (SHA256 of a secret; storing the hash is the whole point, not a leak)"
+paths = [
+  '''(^|/)pos_next/pos_next/doctype/brainwise_branding/brainwise_branding\.py$''',
+]
+regexTarget = "match"
+regexes = [
+  '''MASTER_KEY_HASH\s*=''',
+  '''PROTECTION_PHRASE_HASH\s*=''',
+]
