@@ -9,7 +9,9 @@ __pycache__
 # Build artifacts
 pos_next/public/pos/
 pos_next/www/
-yarn.lock
+# yarn.lock is deliberately NOT ignored on the Lafco fork (LAF-11): the
+# lockfile is the only deterministic record of which JS dependency versions
+# a given deploy actually shipped. Upstream ignores it; we override here.
 package-lock.json
 
 # IDE and editor files
